@@ -251,6 +251,7 @@ public final class ProgramPlannerTest {
                 overload.getOverloadId(),
                 overload.getArgTypes(),
                 overload.isStrict(),
+                overload.isNullable(),
                 overload.getDefinition()));
   }
 

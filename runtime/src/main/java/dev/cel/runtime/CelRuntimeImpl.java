@@ -443,6 +443,7 @@ public abstract class CelRuntimeImpl implements CelRuntime {
             binding.getOverloadId(),
             binding.getArgTypes(),
             binding.isStrict(),
+            binding.isNullable(),
             binding.getDefinition());
       }
 
@@ -456,6 +457,7 @@ public abstract class CelRuntimeImpl implements CelRuntime {
             binding.getOverloadId(),
             binding.getArgTypes(),
             binding.isStrict(),
+            binding.isNullable(),
             binding.getDefinition());
       }
 

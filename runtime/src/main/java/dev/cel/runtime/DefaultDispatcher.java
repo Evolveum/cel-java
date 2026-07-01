@@ -140,15 +140,18 @@ public final class DefaultDispatcher implements CelFunctionResolver {
 
       abstract boolean isStrict();
 
+      abstract boolean isNullable();
+
       abstract CelFunctionOverload overload();
 
       private static OverloadEntry of(
           String functionName,
           ImmutableList<Class<?>> argTypes,
           boolean isStrict,
+          boolean isNullable,
           CelFunctionOverload overload) {
         return new AutoValue_DefaultDispatcher_Builder_OverloadEntry(
-            functionName, argTypes, isStrict, overload);
+            functionName, argTypes, isStrict, isNullable, overload);
       }
     }
 
@@ -160,6 +163,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
         String overloadId,
         ImmutableList<Class<?>> argTypes,
         boolean isStrict,
+        boolean isNullable,
         CelFunctionOverload overload) {
       checkNotNull(functionName);
       checkArgument(!functionName.isEmpty(), "Function name cannot be empty.");
@@ -168,7 +172,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
       checkNotNull(argTypes);
       checkNotNull(overload);
 
-      OverloadEntry newEntry = OverloadEntry.of(functionName, argTypes, isStrict, overload);
+      OverloadEntry newEntry = OverloadEntry.of(functionName, argTypes, isStrict, isNullable, overload);
 
       overloads.merge(
           overloadId,
@@ -196,8 +200,10 @@ public final class DefaultDispatcher implements CelFunctionResolver {
 
         boolean isStrict =
             mergedOverload.getOverloadBindings().stream().allMatch(CelFunctionBinding::isStrict);
+        boolean isNullable =
+                mergedOverload.getOverloadBindings().stream().allMatch(CelFunctionBinding::isNullable);
 
-        return OverloadEntry.of(overloadId, incoming.argTypes(), isStrict, mergedOverload);
+        return OverloadEntry.of(overloadId, incoming.argTypes(), isStrict, isNullable, mergedOverload);
       }
 
       throw new IllegalArgumentException("Duplicate overload ID binding: " + overloadId);
@@ -217,6 +223,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
                 overloadId,
                 overloadImpl,
                 overloadEntry.isStrict(),
+                overloadEntry.isNullable(),
                 overloadEntry.argTypes()));
       }
 

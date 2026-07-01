@@ -32,8 +32,8 @@ public final class InternalFunctionBinder {
    */
   @SuppressWarnings("unchecked")
   public static <T> CelFunctionBinding from(
-      String overloadId, Class<T> arg, CelFunctionOverload.Unary<T> impl, boolean isStrict) {
-    return from(overloadId, ImmutableList.of(arg), (args) -> impl.apply((T) args[0]), isStrict);
+      String overloadId, Class<T> arg, CelFunctionOverload.Unary<T> impl, boolean isStrict, boolean isNullable) {
+    return from(overloadId, ImmutableList.of(arg), (args) -> impl.apply((T) args[0]), isStrict, isNullable);
   }
 
   /**
@@ -41,8 +41,8 @@ public final class InternalFunctionBinder {
    * {@code isStrict}.
    */
   public static CelFunctionBinding from(
-      String overloadId, Iterable<Class<?>> argTypes, CelFunctionOverload impl, boolean isStrict) {
-    return new FunctionBindingImpl(overloadId, ImmutableList.copyOf(argTypes), impl, isStrict);
+      String overloadId, Iterable<Class<?>> argTypes, CelFunctionOverload impl, boolean isStrict, boolean isNullable) {
+    return new FunctionBindingImpl(overloadId, ImmutableList.copyOf(argTypes), impl, isStrict, isNullable);
   }
 
   private InternalFunctionBinder() {}

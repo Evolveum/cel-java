@@ -1,4 +1,5 @@
 // Copyright 2022 Google LLC
+// Portions Copyright 2026 Evolveum
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -120,6 +121,8 @@ public abstract class CelOptions {
 
   public abstract int maxRegexProgramSize();
 
+  public abstract boolean enableEasyNull();
+
   public abstract Builder toBuilder();
 
   /**
@@ -163,7 +166,8 @@ public abstract class CelOptions {
         .unwrapWellKnownTypesOnFunctionDispatch(true)
         .fromProtoUnsetFieldOption(ProtoUnsetFieldOptions.BIND_DEFAULT)
         .enableComprehension(true)
-        .maxRegexProgramSize(-1);
+        .maxRegexProgramSize(-1)
+        .enableEasyNull(false);
   }
 
   /**
@@ -507,6 +511,11 @@ public abstract class CelOptions {
      * implementations (C++ and Go).
      */
     public abstract Builder maxRegexProgramSize(int value);
+
+    /**
+     * TODO
+     */
+    public abstract Builder enableEasyNull(boolean value);
 
     /**
      * Use the `json_name` field option on a protobuf message as the name of the field.

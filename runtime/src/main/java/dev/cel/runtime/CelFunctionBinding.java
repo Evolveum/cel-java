@@ -1,4 +1,5 @@
 // Copyright 2025 Google LLC
+// Portions Copyright 2026 Evolveum
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,6 +51,8 @@ public interface CelFunctionBinding {
 
   boolean isStrict();
 
+  boolean isNullable();
+
   /** Create a unary function binding from the {@code overloadId}, {@code arg}, and {@code impl}. */
   @SuppressWarnings("unchecked") // Safe from CelFunctionOverload.canHandle check before invocation
   static <T> CelFunctionBinding from(
@@ -97,11 +100,22 @@ public interface CelFunctionBinding {
   static CelFunctionBinding from(
       String overloadId, Iterable<Class<?>> argTypes, CelFunctionOverload impl) {
     return new FunctionBindingImpl(
-        overloadId, ImmutableList.copyOf(argTypes), impl, /* isStrict= */ true);
+        overloadId, ImmutableList.copyOf(argTypes), impl, /* isStrict= */ true, determineNullability(argTypes));
+  }
+
+  // TODO: find better place? + consider CelOptions
+  static boolean determineNullability(Iterable<Class<?>> argTypes) {
+      for( Class<?> argType : argTypes) {
+          // If overload declaration is using primitive type then it cannot accept null
+          if (argType.isPrimitive()) {
+              return false;
+          }
+      }
+      return true;
   }
 
 
-  /** See {@link #fromOverloads(String, Collection)}. */
+    /** See {@link #fromOverloads(String, Collection)}. */
   static ImmutableSet<CelFunctionBinding> fromOverloads(
       String functionName, CelFunctionBinding... overloadBindings) {
     return fromOverloads(functionName, ImmutableList.copyOf(overloadBindings));

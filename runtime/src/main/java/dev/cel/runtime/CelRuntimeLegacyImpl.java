@@ -315,6 +315,7 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
             standardFunctionBinding.getOverloadId(),
             standardFunctionBinding.getArgTypes(),
             standardFunctionBinding.isStrict(),
+            standardFunctionBinding.isNullable(),
             standardFunctionBinding.getDefinition());
       }
 
@@ -328,6 +329,7 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
             customBinding.getOverloadId(),
             customBinding.getArgTypes(),
             customBinding.isStrict(),
+            customBinding.isNullable(),
             customBinding.getDefinition());
       }
 

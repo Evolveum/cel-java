@@ -48,7 +48,7 @@ public final class NotStrictlyFalseFunction extends CelStandardFunction {
 
                   return true;
                 },
-                /* isStrict= */ false)),
+                /* isStrict= */ false, /* isNullable= */ false)),
     ;
 
     private final CelStandardOverload bindingCreator;

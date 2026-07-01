@@ -41,6 +41,7 @@ public final class DefaultDispatcherTest {
             /* overloadId= */ "overload_1",
             args -> (Long) args[0] + 1,
             /* isStrict= */ true,
+            /* isNullable= */ false,
             Long.class));
     overloads.put(
         "overload_2",
@@ -49,6 +50,7 @@ public final class DefaultDispatcherTest {
             /* overloadId= */ "overload_2",
             args -> (Long) args[0] + 2,
             /* isStrict= */ true,
+            /* isNullable= */ false,
             Long.class));
   }
 

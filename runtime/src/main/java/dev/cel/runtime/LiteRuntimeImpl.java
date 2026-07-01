@@ -172,6 +172,7 @@ final class LiteRuntimeImpl implements CelLiteRuntime {
                     overloadId,
                     func.getArgTypes(),
                     func.isStrict(),
+                    func.isNullable(),
                     func.getDefinition());
               });
 

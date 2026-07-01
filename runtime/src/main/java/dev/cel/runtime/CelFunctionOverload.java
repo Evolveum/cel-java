@@ -1,4 +1,5 @@
 // Copyright 2024 Google LLC
+// Portions Copyright 2026 Evolveum
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +18,8 @@ package dev.cel.runtime;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.Immutable;
 import java.util.Map;
+import java.util.Optional;
+import dev.cel.common.values.NullValue;
 
 /** Interface describing the general signature of all CEL custom function implementations. */
 @Immutable
@@ -51,14 +54,14 @@ public interface CelFunctionOverload {
    * Returns true if the overload's expected argument types match the types of the given arguments.
    */
   static boolean canHandle(
-      Object[] arguments, ImmutableList<Class<?>> parameterTypes, boolean isStrict) {
+      Object[] arguments, ImmutableList<Class<?>> parameterTypes, boolean isStrict, boolean isNullable) {
     if (parameterTypes.size() != arguments.length) {
       return false;
     }
     for (int i = 0; i < parameterTypes.size(); i++) {
       Class<?> paramType = parameterTypes.get(i);
       Object arg = arguments[i];
-      boolean result = canHandleArg(arg, paramType, isStrict);
+      boolean result = canHandleArg(arg, paramType, isStrict, isNullable);
       if (!result) {
         return false;
       }
@@ -66,23 +69,27 @@ public interface CelFunctionOverload {
     return true;
   }
 
-  static boolean canHandle(Object arg, ImmutableList<Class<?>> parameterTypes, boolean isStrict) {
+  static boolean canHandle(Object arg, ImmutableList<Class<?>> parameterTypes, boolean isStrict, boolean isNullable) {
     if (parameterTypes.size() != 1) {
       return false;
     }
-    return canHandleArg(arg, parameterTypes.get(0), isStrict);
+    return canHandleArg(arg, parameterTypes.get(0), isStrict, isNullable);
   }
 
   static boolean canHandle(
-      Object arg1, Object arg2, ImmutableList<Class<?>> parameterTypes, boolean isStrict) {
+      Object arg1, Object arg2, ImmutableList<Class<?>> parameterTypes, boolean isStrict, boolean isNullable) {
     if (parameterTypes.size() != 2) {
       return false;
     }
-    return canHandleArg(arg1, parameterTypes.get(0), isStrict)
-        && canHandleArg(arg2, parameterTypes.get(1), isStrict);
+    return canHandleArg(arg1, parameterTypes.get(0), isStrict, isNullable)
+        && canHandleArg(arg2, parameterTypes.get(1), isStrict, isNullable);
   }
 
-  static boolean canHandleArg(Object arg, Class<?> paramType, boolean isStrict) {
+  static boolean canHandleArg(Object arg, Class<?> paramType, boolean isStrict, boolean isNullable) {
+    if (isNullable && isNullEquivalent(arg)) {
+        return true;
+    }
+
     // null can be assigned to messages, maps, and to objects.
     // TODO: Remove null special casing
     if (arg == null) {
@@ -99,5 +106,38 @@ public interface CelFunctionOverload {
     }
 
     return paramType.isAssignableFrom(arg.getClass());
+  }
+
+  static Object[] reflectNullability(
+          Object[] arguments, boolean isNullable) {
+    if (!isNullable) {
+      return arguments;
+    }
+    Object[] processedArguments = new Object[arguments.length];
+    for (int i = 0; i < arguments.length; i++) {
+      processedArguments[i] = reflectNullability(arguments[i], isNullable);
+    }
+    return processedArguments;
+  }
+
+  static Object reflectNullability(
+          Object argument, boolean isNullable) {
+    if (isNullable && isNullEquivalent(argument)) {
+      return null;
+    }
+    return argument;
+  }
+
+  static boolean isNullEquivalent(Object arg) {
+    if (arg == null) {
+      return true;
+    }
+    if (arg == NullValue.NULL_VALUE) {
+      return true;
+    }
+    if (arg instanceof Optional<?>) {
+      return !((Optional<?>)arg).isPresent();
+    }
+    return false;
   }
 }
