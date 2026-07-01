@@ -106,7 +106,9 @@ java_library(
     # used_by_android
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
+#        "@maven_conformance//:dev_cel_common",
         "//:auto_value",
         "//common/annotations",
         "@maven//:com_google_errorprone_error_prone_annotations",
@@ -118,6 +120,7 @@ java_library(
     srcs = PROTO_AST_SOURCE,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":cel_ast",
         ":cel_source",
@@ -358,6 +361,7 @@ java_library(
     srcs = ["CelContainer.java"],
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "//:auto_value",
         "@maven//:com_google_errorprone_error_prone_annotations",

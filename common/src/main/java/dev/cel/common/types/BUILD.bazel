@@ -46,6 +46,7 @@ java_library(
     srcs = CEL_TYPE_SOURCES,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":type_providers",
         "//:auto_value",
@@ -168,6 +169,7 @@ java_library(
     srcs = [
         "ProtoMessageTypeProvider.java",
     ],
+    visibility = ["//visibility:public"],
     tags = [
     ],
     deps = [

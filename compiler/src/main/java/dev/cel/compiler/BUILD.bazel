@@ -59,6 +59,7 @@ java_library(
     srcs = COMPILER_BUILDER_SOURCES,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "//:auto_value",
         "//checker:checker_builder",

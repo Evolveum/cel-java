@@ -42,6 +42,7 @@ java_library(
     srcs = ["CelParserFactory.java"],
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":parser",
         "//common:options",
@@ -80,6 +81,7 @@ java_library(
     srcs = PARSER_BUILDER_SOURCES,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":macro",
         "//common:cel_source",
@@ -94,6 +96,7 @@ java_library(
     srcs = MACRO_SOURCES,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "//:auto_value",
         "//common:compiler_common",
@@ -111,6 +114,7 @@ java_library(
     srcs = UNPARSER_SOURCES,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":unparser_visitor",
         "//common:cel_ast",

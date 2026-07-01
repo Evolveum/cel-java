@@ -43,11 +43,11 @@ java_library(
 )
 
 MAVEN_JAR_DEPS = [
-    "@maven_conformance//:dev_cel_compiler",
-    "@maven_conformance//:dev_cel_common",
-    "@maven_conformance//:dev_cel_runtime",
-    "@maven_conformance//:dev_cel_protobuf",
-    "@maven_conformance//:dev_cel_cel",
+#    "@maven_conformance//:dev_cel_compiler",
+#    "@maven_conformance//:dev_cel_common",
+#    "@maven_conformance//:dev_cel_runtime",
+#    "@maven_conformance//:dev_cel_protobuf",
+#    "@maven_conformance//:dev_cel_cel",
 ]
 
 java_library(
@@ -58,6 +58,7 @@ java_library(
     deps = MAVEN_JAR_DEPS + [
         "//:java_truth",
         "//compiler:compiler_builder",
+        "//extensions:extension_library",
         "//parser:parser_factory",
         "//runtime:runtime_planner_impl",
         "//testing:expr_value_utils",

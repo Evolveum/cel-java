@@ -98,6 +98,7 @@ java_library(
 java_library(
     name = "checker_builder",
     srcs = CHECKER_BUILDER_SOURCES,
+    visibility = ["//visibility:public"],
     tags = [
     ],
     deps = [

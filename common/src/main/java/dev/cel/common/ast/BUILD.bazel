@@ -44,6 +44,7 @@ MUTABLE_EXPR_SOURCES = [
 java_library(
     name = "ast",
     srcs = AST_SOURCES,
+    visibility = ["//visibility:public"],
     tags = [
     ],
     deps = [

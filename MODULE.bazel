@@ -46,7 +46,7 @@ TRUTH_VERSION = "1.4.4"
 
 PROTOBUF_JAVA_VERSION = "4.33.5"
 
-CEL_VERSION = "0.13.1"
+CEL_VERSION = "0.13.1e-SNAPSHOT"
 
 # Compile only artifacts
 [
@@ -119,20 +119,21 @@ maven.install(
 
 # Conformance test only
 
-maven.install(
-    name = "maven_conformance",
-    artifacts = [
-        "dev.cel:cel:" + CEL_VERSION,
-        "dev.cel:compiler:" + CEL_VERSION,
-        "dev.cel:runtime:" + CEL_VERSION,
-    ],
-    repositories = [
-        "https://maven.google.com",
-        "https://repo1.maven.org/maven2",
-        "https://central.sonatype.com/repository/maven-snapshots/",
-    ],
-)
-use_repo(maven, "maven", "maven_android", "maven_conformance")
+#maven.install(
+#    name = "maven_conformance",
+#    artifacts = [
+#        "dev.cel:cel:" + CEL_VERSION,
+#        "dev.cel:compiler:" + CEL_VERSION,
+#        "dev.cel:runtime:" + CEL_VERSION,
+#    ],
+#    repositories = [
+#        "https://maven.google.com",
+#        "https://repo1.maven.org/maven2",
+#        "https://central.sonatype.com/repository/maven-snapshots/",
+#    ],
+#)
+#use_repo(maven, "maven", "maven_android", "maven_conformance")
+use_repo(maven, "maven", "maven_android")
 
 non_module_dependencies = use_extension("//:repositories.bzl", "non_module_dependencies")
 use_repo(non_module_dependencies, "antlr4_jar")

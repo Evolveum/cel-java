@@ -6,15 +6,15 @@ package(default_applicable_licenses = [
 
 # keep sorted
 MAVEN_COMPILER_JAR_DEPS = [
-    "@maven_conformance//:dev_cel_common",
-    "@maven_conformance//:dev_cel_compiler",
+#    "@maven_conformance//:dev_cel_common",
+#    "@maven_conformance//:dev_cel_compiler",
 ]
 
 # keep sorted
 MAVEN_RUNTIME_JAR_DEPS = [
-    "@maven_conformance//:dev_cel_common",
-    "@maven_conformance//:dev_cel_protobuf",
-    "@maven_conformance//:dev_cel_runtime",
+#    "@maven_conformance//:dev_cel_common",
+#    "@maven_conformance//:dev_cel_protobuf",
+#    "@maven_conformance//:dev_cel_runtime",
 ]
 
 java_test(
@@ -24,6 +24,22 @@ java_test(
     deps =
         MAVEN_COMPILER_JAR_DEPS + [
             "//:java_truth",
+            "//common:cel_ast",
+            "//common:compiler_common",
+            "//compiler",
+            "//checker",
+            "//parser/src/main/java/dev/cel/parser:parser_factory",
+            "//parser/src/main/java/dev/cel/parser:unparser",
+            "//runtime:evaluation_exception",
+            "//checker/src/main/java/dev/cel/checker:checker_builder",
+            "//common/src/main/java/dev/cel/common/ast",
+            "//common/src/main/java/dev/cel/common/types:message_type_provider",
+            "//common/src/main/java/dev/cel/common/types",
+            "//common/src/main/java/dev/cel/common:container",
+            "//common/src/main/java/dev/cel/common:options",
+            "//compiler/src/main/java/dev/cel/compiler:compiler_builder",
+            "//parser/src/main/java/dev/cel/parser:macro",
+            "//parser/src/main/java/dev/cel/parser:parser_builder",
             "@cel_spec//proto/cel/expr/conformance/proto3:test_all_types_java_proto",
             "@maven//:com_google_testparameterinjector_test_parameter_injector",
             "@maven//:junit_junit",
@@ -37,6 +53,24 @@ java_test(
     deps =
         MAVEN_RUNTIME_JAR_DEPS + [
             "//:java_truth",
+            "//common:cel_ast",
+            "//common:compiler_common",
+            "//common:options",
+            "//runtime:evaluation_exception",
+            "//runtime:function_binding",
+            "//runtime:runtime_factory",
+            "//common/src/main/java/dev/cel/common:proto_ast",
+            "//runtime/src/main/java/dev/cel/runtime",
+            "//runtime/src/main/java/dev/cel/runtime:standard_functions",
+            "//checker/src/main/java/dev/cel/checker:checker_builder",
+            "//common/src/main/java/dev/cel/common/ast",
+            "//common/src/main/java/dev/cel/common/types:message_type_provider",
+            "//common/src/main/java/dev/cel/common/types",
+            "//common/src/main/java/dev/cel/common:container",
+            "//common/src/main/java/dev/cel/common:options",
+            "//compiler/src/main/java/dev/cel/compiler:compiler_builder",
+            "//parser/src/main/java/dev/cel/parser:macro",
+            "//parser/src/main/java/dev/cel/parser:parser_builder",
             "@cel_spec//proto/cel/expr:checked_java_proto",
             "@cel_spec//proto/cel/expr/conformance/proto3:test_all_types_java_proto",
             "@maven//:com_google_guava_guava",

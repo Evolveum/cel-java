@@ -623,6 +623,7 @@ java_library(
     srcs = ["CelStandardFunctions.java"],
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":function_binding",
         ":runtime_equality",
@@ -799,6 +800,8 @@ java_library(
     tags = [
     ],
     deps = [
+#        "@maven_conformance//:dev_cel_common",
+	"//common/values",
         ":evaluation_exception",
         ":unknown_attributes",
         "@maven//:com_google_errorprone_error_prone_annotations",
@@ -815,6 +818,7 @@ cel_android_library(
     deps = [
         ":evaluation_exception",
         ":unknown_attributes_android",
+        "//common/values",
         "@maven//:com_google_errorprone_error_prone_annotations",
         "@maven_android//:com_google_guava_guava",
     ],
@@ -930,6 +934,7 @@ java_library(
     srcs = RUNTIME_SOURCES,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":activation",
         ":evaluation_exception",
@@ -1305,6 +1310,7 @@ java_library(
     tags = [
     ],
     deps = [
+#        "@maven_conformance//:dev_cel_runtime",
         ":evaluation_exception",
         ":function_binding",
         ":function_overload",
