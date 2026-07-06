@@ -1,4 +1,5 @@
 // Copyright 2022 Google LLC
+// Portions Copyright 2026 Evolveum
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +19,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of dispatcher.
@@ -71,7 +72,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
       throws CelEvaluationException {
     int matchingOverloadCount = 0;
     CelResolvedOverload match = null;
-    List<String> candidates = null;
+    List<CelResolvedOverload> candidates = null;
     for (String overloadId : overloadIds) {
       CelResolvedOverload overload = overloads.get(overloadId);
       // If the overload is null, it means that the function was not registered; however, it is
@@ -80,23 +81,41 @@ public final class DefaultDispatcher implements CelFunctionResolver {
         if (++matchingOverloadCount > 1) {
           if (candidates == null) {
             candidates = new ArrayList<>();
-            candidates.add(match.getOverloadId());
+            candidates.add(match);
           }
-          candidates.add(overloadId);
+          candidates.add(overload);
         }
         match = overload;
       }
     }
 
     if (matchingOverloadCount > 1) {
-      throw CelEvaluationExceptionBuilder.newBuilder(
-              "Ambiguous overloads for function '%s'. Matching candidates: %s",
-              functionName, Joiner.on(", ").join(candidates))
-          .setErrorCode(CelErrorCode.AMBIGUOUS_OVERLOAD)
-          .build();
+      if (isCaseOfNullOverload(args, candidates)) {
+        return Optional.of(
+                CelResolvedNullOverload.of(match.getParameterTypes())
+        );
+      } else {
+        throw CelEvaluationExceptionBuilder.newBuilder(
+                        "Ambiguous overloads for function '%s'. Matching candidates: %s",
+                        functionName,
+                        candidates
+                                .stream()
+                                .map(CelResolvedOverload::getOverloadId)
+                                .collect(Collectors.joining(", "))
+                )
+                .setErrorCode(CelErrorCode.AMBIGUOUS_OVERLOAD)
+                .build();
+      }
     }
     return Optional.ofNullable(match);
   }
+
+    private static boolean isCaseOfNullOverload(Object[] args, List<CelResolvedOverload> candidates) {
+      if (args.length < 1) {
+        return false;
+      }
+      return CelFunctionOverload.isNullEquivalent(args[0]);
+    }
 
   /**
    * Finds the single registered overload iff it's marked as a non-strict function.

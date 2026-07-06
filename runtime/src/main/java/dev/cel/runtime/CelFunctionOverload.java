@@ -140,4 +140,6 @@ public interface CelFunctionOverload {
     }
     return false;
   }
+
+  static final Object NULL_VALUE = NullValue.NULL_VALUE;
 }
