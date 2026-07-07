@@ -91,9 +91,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
 
     if (matchingOverloadCount > 1) {
       if (isCaseOfNullOverload(args, candidates)) {
-        return Optional.of(
-                CelResolvedNullOverload.of(match.getParameterTypes())
-        );
+        return Optional.of(determineNullOverloadOrThrow(functionName, args, candidates));
       } else {
         throw CelEvaluationExceptionBuilder.newBuilder(
                         "Ambiguous overloads for function '%s'. Matching candidates: %s",
@@ -110,12 +108,42 @@ public final class DefaultDispatcher implements CelFunctionResolver {
     return Optional.ofNullable(match);
   }
 
-    private static boolean isCaseOfNullOverload(Object[] args, List<CelResolvedOverload> candidates) {
-      if (args.length < 1) {
-        return false;
-      }
-      return CelFunctionOverload.isNullEquivalent(args[0]);
+  private static boolean isCaseOfNullOverload(Object[] args, List<CelResolvedOverload> candidates) {
+    if (args.length < 1) {
+      return false;
     }
+    return CelFunctionOverload.isNullEquivalent(args[0]);
+  }
+
+  private static CelResolvedOverload determineNullOverloadOrThrow(
+          String functionName,
+          Object[] args,
+          List<CelResolvedOverload> candidates)
+          throws CelEvaluationException {
+    CelResolvedOverload matchedOverload = null;
+    for (CelResolvedOverload candidate : candidates) {
+      if (!candidate.getNullabilityProperties().isNullable()) {
+        continue;
+      }
+      if (matchedOverload == null) {
+        matchedOverload = candidate;
+      } else {
+        if (!candidate.getNullabilityProperties().equals(matchedOverload.getNullabilityProperties())) {
+          throw CelEvaluationExceptionBuilder.newBuilder(
+                          "Ambiguous overloads for function '%s' due to mismatch in nullability properties. Matching candidates: %s",
+                          functionName,
+                          candidates
+                                  .stream()
+                                  .map(CelResolvedOverload::getOverloadId)
+                                  .collect(Collectors.joining(", "))
+                  )
+                  .setErrorCode(CelErrorCode.AMBIGUOUS_OVERLOAD)
+                  .build();
+        }
+      }
+    }
+    return CelResolvedNullOverload.of(matchedOverload.getParameterTypes(), matchedOverload.getNullabilityProperties());
+  }
 
   /**
    * Finds the single registered overload iff it's marked as a non-strict function.
@@ -159,7 +187,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
 
       abstract boolean isStrict();
 
-      abstract boolean isNullable();
+      abstract NullabilityProperties nullabilityProperties();
 
       abstract CelFunctionOverload overload();
 
@@ -167,10 +195,10 @@ public final class DefaultDispatcher implements CelFunctionResolver {
           String functionName,
           ImmutableList<Class<?>> argTypes,
           boolean isStrict,
-          boolean isNullable,
+          NullabilityProperties nullabilityProperties,
           CelFunctionOverload overload) {
         return new AutoValue_DefaultDispatcher_Builder_OverloadEntry(
-            functionName, argTypes, isStrict, isNullable, overload);
+            functionName, argTypes, isStrict, nullabilityProperties, overload);
       }
     }
 
@@ -182,7 +210,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
         String overloadId,
         ImmutableList<Class<?>> argTypes,
         boolean isStrict,
-        boolean isNullable,
+        NullabilityProperties nullabilityProperties,
         CelFunctionOverload overload) {
       checkNotNull(functionName);
       checkArgument(!functionName.isEmpty(), "Function name cannot be empty.");
@@ -191,7 +219,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
       checkNotNull(argTypes);
       checkNotNull(overload);
 
-      OverloadEntry newEntry = OverloadEntry.of(functionName, argTypes, isStrict, isNullable, overload);
+      OverloadEntry newEntry = OverloadEntry.of(functionName, argTypes, isStrict, nullabilityProperties, overload);
 
       overloads.merge(
           overloadId,
@@ -219,10 +247,14 @@ public final class DefaultDispatcher implements CelFunctionResolver {
 
         boolean isStrict =
             mergedOverload.getOverloadBindings().stream().allMatch(CelFunctionBinding::isStrict);
-        boolean isNullable =
-                mergedOverload.getOverloadBindings().stream().allMatch(CelFunctionBinding::isNullable);
+        if (mergedOverload.getOverloadBindings().stream().map(CelFunctionBinding::getNullabilityProperties).distinct().count() > 1) {
+          throw new IllegalArgumentException("Cannot merge overload '" + overloadId + "' due to mismatch in nullability properties");
+        }
+        NullabilityProperties nullabilityProperties = CelFunctionBinding.mergeNullabilityProperties(
+                mergedOverload.getOverloadBindings().stream()
+                        .map(CelFunctionBinding::getNullabilityProperties).collect(Collectors.toList()));
 
-        return OverloadEntry.of(overloadId, incoming.argTypes(), isStrict, isNullable, mergedOverload);
+        return OverloadEntry.of(overloadId, incoming.argTypes(), isStrict, nullabilityProperties, mergedOverload);
       }
 
       throw new IllegalArgumentException("Duplicate overload ID binding: " + overloadId);
@@ -242,7 +274,7 @@ public final class DefaultDispatcher implements CelFunctionResolver {
                 overloadId,
                 overloadImpl,
                 overloadEntry.isStrict(),
-                overloadEntry.isNullable(),
+                overloadEntry.nullabilityProperties(),
                 overloadEntry.argTypes()));
       }
 

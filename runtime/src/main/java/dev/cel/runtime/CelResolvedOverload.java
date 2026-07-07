@@ -54,7 +54,7 @@ public abstract class CelResolvedOverload {
    */
   public abstract boolean isStrict();
 
-  public abstract boolean isNullable();
+  public abstract NullabilityProperties getNullabilityProperties();
 
   /** The function definition. */
   public abstract CelFunctionOverload getDefinition();
@@ -64,26 +64,26 @@ public abstract class CelResolvedOverload {
   public Object invoke(Object[] args) throws CelEvaluationException {
     // Note: canHandle check is handled separately in DynamicDispatchOverload
     if (isDynamicDispatch()
-        || CelFunctionOverload.canHandle(args, getParameterTypes(), isStrict(), isNullable())) {
-      return getDefinition().apply(CelFunctionOverload.reflectNullability(args, isNullable()));
+        || CelFunctionOverload.canHandle(args, getParameterTypes(), isStrict(), getNullabilityProperties())) {
+      return getDefinition().apply(CelFunctionOverload.reflectNullability(args, getNullabilityProperties()));
     }
     throw new CelOverloadNotFoundException(getFunctionName(), ImmutableList.of(getOverloadId()));
   }
 
   public Object invoke(Object arg) throws CelEvaluationException {
     if (isDynamicDispatch()
-        || CelFunctionOverload.canHandle(arg, getParameterTypes(), isStrict(), isNullable())) {
-      return getOptimizedDefinition().apply(CelFunctionOverload.reflectNullability(arg, isNullable()));
+        || CelFunctionOverload.canHandle(arg, getParameterTypes(), isStrict(), getNullabilityProperties())) {
+      return getOptimizedDefinition().apply(CelFunctionOverload.reflectNullability(arg, getNullabilityProperties()));
     }
     throw new CelOverloadNotFoundException(getFunctionName(), ImmutableList.of(getOverloadId()));
   }
 
   public Object invoke(Object arg1, Object arg2) throws CelEvaluationException {
     if (isDynamicDispatch()
-        || CelFunctionOverload.canHandle(arg1, arg2, getParameterTypes(), isStrict(), isNullable())) {
+        || CelFunctionOverload.canHandle(arg1, arg2, getParameterTypes(), isStrict(), getNullabilityProperties())) {
       return getOptimizedDefinition().apply(
-        CelFunctionOverload.reflectNullability(arg1, isNullable()),
-        CelFunctionOverload.reflectNullability(arg2, isNullable()));
+        CelFunctionOverload.reflectNullability(arg1, getNullabilityProperties()),
+        CelFunctionOverload.reflectNullability(arg2, getNullabilityProperties()));
     }
     throw new CelOverloadNotFoundException(getFunctionName(), ImmutableList.of(getOverloadId()));
   }
@@ -97,9 +97,9 @@ public abstract class CelResolvedOverload {
       String overloadId,
       CelFunctionOverload definition,
       boolean isStrict,
-      boolean isNullable,
+      NullabilityProperties nullabilityProperties,
       Class<?>... parameterTypes) {
-    return of(functionName, overloadId, definition, isStrict, isNullable, ImmutableList.copyOf(parameterTypes));
+    return of(functionName, overloadId, definition, isStrict, nullabilityProperties, ImmutableList.copyOf(parameterTypes));
   }
 
   /**
@@ -111,7 +111,7 @@ public abstract class CelResolvedOverload {
       String overloadId,
       CelFunctionOverload definition,
       boolean isStrict,
-      boolean isNullable,
+      NullabilityProperties nullabilityProperties,
       List<Class<?>> parameterTypes) {
     OptimizedFunctionOverload optimizedDef =
         (definition instanceof OptimizedFunctionOverload)
@@ -122,7 +122,7 @@ public abstract class CelResolvedOverload {
         overloadId,
         ImmutableList.copyOf(parameterTypes),
         isStrict,
-        isNullable,
+        nullabilityProperties,
         definition,
         optimizedDef);
   }
@@ -131,7 +131,7 @@ public abstract class CelResolvedOverload {
    * Returns true if the overload's expected argument types match the types of the given arguments.
    */
   boolean canHandle(Object[] arguments) {
-    return CelFunctionOverload.canHandle(arguments, getParameterTypes(), isStrict(), isNullable());
+    return CelFunctionOverload.canHandle(arguments, getParameterTypes(), isStrict(), getNullabilityProperties());
   }
 
   private boolean isDynamicDispatch() {

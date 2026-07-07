@@ -35,7 +35,7 @@ public final class CelResolvedOverloadTest {
               return arg + 1;
             },
         /* isStrict= */ true,
-        /* isNullable= */ false,
+        NullabilityProperties.NOT_NULLABLE,
         Long.class);
   }
 
@@ -52,7 +52,7 @@ public final class CelResolvedOverloadTest {
             /* overloadId= */ "identity_overload",
             (CelFunctionOverload) (args) -> args[0],
             /* isStrict= */ true,
-            /* isNullable= */ false,
+            NullabilityProperties.NOT_NULLABLE,
             TestAllTypes.class);
     assertThat(overload.canHandle(new Object[] {null})).isFalse();
   }
@@ -65,7 +65,7 @@ public final class CelResolvedOverloadTest {
             /* overloadId= */ "identity_overload",
             (CelFunctionOverload) (args) -> args[0],
             /* isStrict= */ true,
-            /* isNullable= */ false,
+            NullabilityProperties.NOT_NULLABLE,
             Long.class);
     assertThat(overload.canHandle(new Object[] {null})).isFalse();
   }
@@ -91,7 +91,7 @@ public final class CelResolvedOverloadTest {
                   return false;
                 },
             /* isStrict= */ false,
-            /* isNullable= */ false,
+            NullabilityProperties.NOT_NULLABLE,
             Long.class,
             Long.class);
     assertThat(
@@ -111,7 +111,7 @@ public final class CelResolvedOverloadTest {
                   return false;
                 },
             /* isStrict= */ false,
-            /* isNullable= */ false,
+            NullabilityProperties.NOT_NULLABLE,
             Long.class,
             Long.class);
     assertThat(nonStrictOverload.canHandle(new Object[] {new RuntimeException(), "Foo"})).isFalse();

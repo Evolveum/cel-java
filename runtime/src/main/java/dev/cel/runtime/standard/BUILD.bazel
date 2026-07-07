@@ -204,6 +204,7 @@ java_library(
         "//runtime:function_binding",
         "//runtime:runtime_equality",
         "//runtime/standard:standard_function",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload",
         "@maven//:com_google_guava_guava",
     ],
 )
@@ -219,6 +220,7 @@ cel_android_library(
         "//common:options",
         "//runtime:function_binding_android",
         "//runtime:runtime_equality_android",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload_android",
         "@maven_android//:com_google_guava_guava",
     ],
 )
@@ -332,6 +334,7 @@ java_library(
         "//runtime:function_binding",
         "//runtime:runtime_equality",
         "//runtime/standard:standard_function",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload",
         "@maven//:com_google_guava_guava",
     ],
 )
@@ -347,6 +350,7 @@ cel_android_library(
         "//common:options",
         "//runtime:function_binding_android",
         "//runtime:runtime_equality_android",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload_android",
         "@maven_android//:com_google_guava_guava",
     ],
 )
@@ -1292,6 +1296,7 @@ java_library(
         "//runtime:function_binding",
         "//runtime:runtime_equality",
         "//runtime/standard:standard_function",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload",
         "@maven//:com_google_guava_guava",
     ],
 )
@@ -1307,6 +1312,7 @@ cel_android_library(
         "//common:options",
         "//runtime:function_binding_android",
         "//runtime:runtime_equality_android",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload_android",
         "@maven_android//:com_google_guava_guava",
     ],
 )
@@ -1472,6 +1478,7 @@ java_library(
         "//runtime:internal_function_binder",
         "//runtime:runtime_equality",
         "//runtime/standard:standard_function",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload",
         "@maven//:com_google_guava_guava",
     ],
 )
@@ -1487,6 +1494,7 @@ cel_android_library(
         "//common:operator_android",
         "//common:options",
         "//runtime:function_binding_android",
+        "//runtime/src/main/java/dev/cel/runtime:function_overload_android",
         "//runtime:internal_function_binder_android",
         "//runtime:runtime_equality_android",
         "@maven_android//:com_google_guava_guava",

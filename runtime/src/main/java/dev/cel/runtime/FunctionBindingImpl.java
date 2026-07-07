@@ -23,6 +23,8 @@ import com.google.common.collect.Iterables;
 import com.google.errorprone.annotations.Immutable;
 import dev.cel.common.exceptions.CelOverloadNotFoundException;
 
+import java.util.stream.Collectors;
+
 @Immutable
 final class FunctionBindingImpl implements InternalCelFunctionBinding {
 
@@ -36,7 +38,7 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
 
   private final boolean isStrict;
 
-  private final boolean isNullable;
+  private final NullabilityProperties nullabilityProperties;
 
   @Override
   public String getFunctionName() {
@@ -64,8 +66,8 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
   }
 
   @Override
-  public boolean isNullable() {
-    return isNullable;
+  public NullabilityProperties getNullabilityProperties() {
+    return nullabilityProperties;
   }
 
   FunctionBindingImpl(
@@ -74,13 +76,13 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
       ImmutableList<Class<?>> argTypes,
       CelFunctionOverload definition,
       boolean isStrict,
-      boolean isNullable) {
+      NullabilityProperties nullabilityProperties) {
     this.functionName = functionName;
     this.overloadId = overloadId;
     this.argTypes = argTypes;
     this.definition = definition;
     this.isStrict = isStrict;
-    this.isNullable = isNullable;
+    this.nullabilityProperties = nullabilityProperties;
   }
 
   FunctionBindingImpl(
@@ -88,8 +90,8 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
       ImmutableList<Class<?>> argTypes,
       CelFunctionOverload definition,
       boolean isStrict,
-      boolean isNullable) {
-    this(overloadId, overloadId, argTypes, definition, isStrict, isNullable);
+      NullabilityProperties nullabilityProperties) {
+    this(overloadId, overloadId, argTypes, definition, isStrict, nullabilityProperties);
   }
 
   static ImmutableSet<CelFunctionBinding> groupOverloadsToFunction(
@@ -98,7 +100,7 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
     for (CelFunctionBinding b : overloadBindings) {
       builder.add(
           new FunctionBindingImpl(
-              functionName, b.getOverloadId(), b.getArgTypes(), b.getDefinition(), b.isStrict(), b.isNullable()));
+              functionName, b.getOverloadId(), b.getArgTypes(), b.getDefinition(), b.isStrict(), b.getNullabilityProperties()));
     }
 
     // If there is already a binding with the same name as the function, we treat it as a
@@ -117,7 +119,7 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
                 singleBinding.getArgTypes(),
                 singleBinding.getDefinition(),
                 singleBinding.isStrict(),
-                singleBinding.isNullable()));
+                singleBinding.getNullabilityProperties()));
       } else if (overloadBindings.size() > 1) {
         builder.add(new DynamicDispatchBinding(functionName, overloadBindings));
       }
@@ -130,7 +132,7 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
   static final class DynamicDispatchBinding implements InternalCelFunctionBinding {
 
     private final boolean isStrict;
-    private final boolean isNullable;
+    private final NullabilityProperties nullabilityProperties;
     private final DynamicDispatchOverload dynamicDispatchOverload;
 
     @Override
@@ -158,14 +160,15 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
       return isStrict;
     }
 
-    public boolean isNullable() {
-      return isNullable;
+    public NullabilityProperties getNullabilityProperties() {
+      return nullabilityProperties;
     }
 
     private DynamicDispatchBinding(
         String functionName, ImmutableSet<CelFunctionBinding> overloadBindings) {
       this.isStrict = overloadBindings.stream().allMatch(CelFunctionBinding::isStrict);
-      this.isNullable = overloadBindings.stream().allMatch(CelFunctionBinding::isNullable);
+      this.nullabilityProperties = CelFunctionBinding.mergeNullabilityProperties(
+              overloadBindings.stream().map(CelFunctionBinding::getNullabilityProperties).collect(Collectors.toList()));
       this.dynamicDispatchOverload = new DynamicDispatchOverload(functionName, overloadBindings);
     }
   }
@@ -178,7 +181,7 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
     @Override
     public Object apply(Object[] args) throws CelEvaluationException {
       for (CelFunctionBinding overload : overloadBindings) {
-        if (CelFunctionOverload.canHandle(args, overload.getArgTypes(), overload.isStrict(), overload.isNullable())) {
+        if (CelFunctionOverload.canHandle(args, overload.getArgTypes(), overload.isStrict(), overload.getNullabilityProperties())) {
           return overload.getDefinition().apply(args);
         }
       }
@@ -193,7 +196,7 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
     @Override
     public Object apply(Object arg) throws CelEvaluationException {
       for (CelFunctionBinding overload : overloadBindings) {
-        if (CelFunctionOverload.canHandle(arg, overload.getArgTypes(), overload.isStrict(), overload.isNullable())) {
+        if (CelFunctionOverload.canHandle(arg, overload.getArgTypes(), overload.isStrict(), overload.getNullabilityProperties())) {
           OptimizedFunctionOverload def = (OptimizedFunctionOverload) overload.getDefinition();
           return def.apply(arg);
         }
@@ -209,7 +212,7 @@ final class FunctionBindingImpl implements InternalCelFunctionBinding {
     public Object apply(Object arg1, Object arg2) throws CelEvaluationException {
       for (CelFunctionBinding overload : overloadBindings) {
         if (CelFunctionOverload.canHandle(
-            arg1, arg2, overload.getArgTypes(), overload.isStrict(), overload.isNullable())) {
+            arg1, arg2, overload.getArgTypes(), overload.isStrict(), overload.getNullabilityProperties())) {
           OptimizedFunctionOverload def = (OptimizedFunctionOverload) overload.getDefinition();
           return def.apply(arg1, arg2);
         }

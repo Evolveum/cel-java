@@ -161,6 +161,7 @@ java_library(
     srcs = CEL_VALUES_SOURCES,
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":cel_byte_string",
         ":cel_value",

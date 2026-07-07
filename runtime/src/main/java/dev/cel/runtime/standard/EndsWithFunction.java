@@ -17,6 +17,7 @@ package dev.cel.runtime.standard;
 import com.google.common.collect.ImmutableSet;
 import dev.cel.common.CelOptions;
 import dev.cel.runtime.CelFunctionBinding;
+import dev.cel.runtime.NullabilityProperties;
 import dev.cel.runtime.RuntimeEquality;
 import java.util.Arrays;
 
@@ -41,7 +42,8 @@ public final class EndsWithFunction extends CelStandardFunction {
     ENDS_WITH_STRING(
         (celOptions, runtimeEquality) ->
             CelFunctionBinding.from(
-                "ends_with_string", String.class, String.class, String::endsWith)),
+                "ends_with_string", String.class, String.class, String::endsWith,
+                    NullabilityProperties.NULLABLE_FALSE)),
     ;
 
     private final CelStandardOverload standardOverload;

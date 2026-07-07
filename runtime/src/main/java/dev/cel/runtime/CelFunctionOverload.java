@@ -54,14 +54,14 @@ public interface CelFunctionOverload {
    * Returns true if the overload's expected argument types match the types of the given arguments.
    */
   static boolean canHandle(
-      Object[] arguments, ImmutableList<Class<?>> parameterTypes, boolean isStrict, boolean isNullable) {
+      Object[] arguments, ImmutableList<Class<?>> parameterTypes, boolean isStrict, NullabilityProperties nullabilityProperties) {
     if (parameterTypes.size() != arguments.length) {
       return false;
     }
     for (int i = 0; i < parameterTypes.size(); i++) {
       Class<?> paramType = parameterTypes.get(i);
       Object arg = arguments[i];
-      boolean result = canHandleArg(arg, paramType, isStrict, isNullable);
+      boolean result = canHandleArg(arg, paramType, isStrict, nullabilityProperties);
       if (!result) {
         return false;
       }
@@ -69,24 +69,24 @@ public interface CelFunctionOverload {
     return true;
   }
 
-  static boolean canHandle(Object arg, ImmutableList<Class<?>> parameterTypes, boolean isStrict, boolean isNullable) {
+  static boolean canHandle(Object arg, ImmutableList<Class<?>> parameterTypes, boolean isStrict, NullabilityProperties nullabilityProperties) {
     if (parameterTypes.size() != 1) {
       return false;
     }
-    return canHandleArg(arg, parameterTypes.get(0), isStrict, isNullable);
+    return canHandleArg(arg, parameterTypes.get(0), isStrict, nullabilityProperties);
   }
 
   static boolean canHandle(
-      Object arg1, Object arg2, ImmutableList<Class<?>> parameterTypes, boolean isStrict, boolean isNullable) {
+      Object arg1, Object arg2, ImmutableList<Class<?>> parameterTypes, boolean isStrict, NullabilityProperties nullabilityProperties) {
     if (parameterTypes.size() != 2) {
       return false;
     }
-    return canHandleArg(arg1, parameterTypes.get(0), isStrict, isNullable)
-        && canHandleArg(arg2, parameterTypes.get(1), isStrict, isNullable);
+    return canHandleArg(arg1, parameterTypes.get(0), isStrict, nullabilityProperties)
+        && canHandleArg(arg2, parameterTypes.get(1), isStrict, nullabilityProperties);
   }
 
-  static boolean canHandleArg(Object arg, Class<?> paramType, boolean isStrict, boolean isNullable) {
-    if (isNullable && isNullEquivalent(arg)) {
+  static boolean canHandleArg(Object arg, Class<?> paramType, boolean isStrict, NullabilityProperties nullabilityProperties) {
+    if (nullabilityProperties.isNullable() && isNullEquivalent(arg)) {
         return true;
     }
 
@@ -109,20 +109,20 @@ public interface CelFunctionOverload {
   }
 
   static Object[] reflectNullability(
-          Object[] arguments, boolean isNullable) {
-    if (!isNullable) {
+          Object[] arguments, NullabilityProperties nullabilityProperties) {
+    if (!nullabilityProperties.isNullable()) {
       return arguments;
     }
     Object[] processedArguments = new Object[arguments.length];
     for (int i = 0; i < arguments.length; i++) {
-      processedArguments[i] = reflectNullability(arguments[i], isNullable);
+      processedArguments[i] = reflectNullability(arguments[i], nullabilityProperties);
     }
     return processedArguments;
   }
 
   static Object reflectNullability(
-          Object argument, boolean isNullable) {
-    if (isNullable && isNullEquivalent(argument)) {
+          Object argument, NullabilityProperties nullabilityProperties) {
+    if (nullabilityProperties.isNullable() && isNullEquivalent(argument)) {
       return null;
     }
     return argument;

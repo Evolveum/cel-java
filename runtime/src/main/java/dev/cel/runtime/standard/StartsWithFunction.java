@@ -17,6 +17,7 @@ package dev.cel.runtime.standard;
 import com.google.common.collect.ImmutableSet;
 import dev.cel.common.CelOptions;
 import dev.cel.runtime.CelFunctionBinding;
+import dev.cel.runtime.NullabilityProperties;
 import dev.cel.runtime.RuntimeEquality;
 import java.util.Arrays;
 
@@ -42,7 +43,8 @@ public final class StartsWithFunction extends CelStandardFunction {
     STARTS_WITH_STRING(
         (celOptions, runtimeEquality) ->
             CelFunctionBinding.from(
-                "starts_with_string", String.class, String.class, String::startsWith));
+                "starts_with_string", String.class, String.class, String::startsWith,
+                    NullabilityProperties.NULLABLE_FALSE));
 
     private final CelStandardOverload standardOverload;
 

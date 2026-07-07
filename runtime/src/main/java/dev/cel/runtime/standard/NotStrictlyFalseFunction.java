@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.cel.common.CelOptions;
 import dev.cel.runtime.CelFunctionBinding;
 import dev.cel.runtime.InternalFunctionBinder;
+import dev.cel.runtime.NullabilityProperties;
 import dev.cel.runtime.RuntimeEquality;
 
 /**
@@ -48,7 +49,7 @@ public final class NotStrictlyFalseFunction extends CelStandardFunction {
 
                   return true;
                 },
-                /* isStrict= */ false, /* isNullable= */ false)),
+                /* isStrict= */ false, NullabilityProperties.NOT_NULLABLE)),
     ;
 
     private final CelStandardOverload bindingCreator;

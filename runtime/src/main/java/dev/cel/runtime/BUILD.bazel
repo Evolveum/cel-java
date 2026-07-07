@@ -108,6 +108,7 @@ java_library(
         "//common/internal:proto_message_factory",
         "//common/types:cel_types",
         "//common/values:cel_byte_string",
+        "//common/src/main/java/dev/cel/common/values",
         "@maven//:com_google_errorprone_error_prone_annotations",
         "@maven//:com_google_guava_guava",
         "@maven//:com_google_protobuf_protobuf_java",
@@ -796,9 +797,11 @@ java_library(
     srcs = [
         "CelFunctionOverload.java",
         "OptimizedFunctionOverload.java",
+        "NullabilityProperties.java"
     ],
     tags = [
     ],
+    visibility = ["//visibility:public"],
     deps = [
 #        "@maven_conformance//:dev_cel_common",
 	"//common/values",
@@ -814,7 +817,9 @@ cel_android_library(
     srcs = [
         "CelFunctionOverload.java",
         "OptimizedFunctionOverload.java",
+        "NullabilityProperties.java"
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":evaluation_exception",
         ":unknown_attributes_android",

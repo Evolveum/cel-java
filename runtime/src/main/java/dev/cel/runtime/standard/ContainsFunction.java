@@ -1,4 +1,5 @@
 // Copyright 2025 Google LLC
+// Portions copyright 2026 Evolveum
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@ package dev.cel.runtime.standard;
 import com.google.common.collect.ImmutableSet;
 import dev.cel.common.CelOptions;
 import dev.cel.runtime.CelFunctionBinding;
+import dev.cel.runtime.NullabilityProperties;
 import dev.cel.runtime.RuntimeEquality;
 import java.util.Arrays;
 
@@ -41,7 +43,8 @@ public final class ContainsFunction extends CelStandardFunction {
     CONTAINS_STRING(
         (celOptions, runtimeEquality) ->
             CelFunctionBinding.from(
-                "contains_string", String.class, String.class, String::contains)),
+                "contains_string", String.class, String.class, String::contains,
+                    NullabilityProperties.NULLABLE_FALSE)),
     ;
 
     private final CelStandardOverload standardOverload;

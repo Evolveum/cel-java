@@ -82,7 +82,7 @@ public class DefaultInterpreterTest {
         /* overloadId= */ "error_overload",
         ImmutableList.<Class<?>>of(long.class),
         /* isStrict= */ true,
-        /* isNullable= */ false,
+        NullabilityProperties.NOT_NULLABLE,
         (args) -> new IllegalArgumentException("Always throws"));
     CelFunctionBinding notStrictlyFalseBinding =
         NotStrictlyFalseOverload.NOT_STRICTLY_FALSE.newFunctionBinding(
@@ -97,7 +97,7 @@ public class DefaultInterpreterTest {
         notStrictlyFalseBinding.getOverloadId(),
         notStrictlyFalseBinding.getArgTypes(),
         notStrictlyFalseBinding.isStrict(),
-        notStrictlyFalseBinding.isNullable(),
+        notStrictlyFalseBinding.getNullabilityProperties(),
         notStrictlyFalseBinding.getDefinition());
     DefaultInterpreter defaultInterpreter =
         new DefaultInterpreter(

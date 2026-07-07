@@ -27,17 +27,14 @@ import java.util.List;
 public class CelResolvedNullOverload extends CelResolvedOverload {
 
   private final ImmutableList<Class<?>> parameterTypes;
+  private final NullabilityProperties nullabilityProperties;
+  private final OptimizedFunctionOverload optimizedFunctionOverload;
 
-  private static final OptimizedFunctionOverload OPTIMIZED_FUNCTION_OVERLOAD = new OptimizedFunctionOverload() {
-    public Object apply(Object[] args) throws CelEvaluationException {
-      return CelFunctionOverload.NULL_VALUE;
-    }
-  };
-
-  CelResolvedNullOverload(ImmutableList<Class<?>> parameterTypes) {
+  CelResolvedNullOverload(ImmutableList<Class<?>> parameterTypes, NullabilityProperties nullabilityProperties) {
     this.parameterTypes = parameterTypes;
+    this.nullabilityProperties = nullabilityProperties;
+    this.optimizedFunctionOverload = args -> nullabilityProperties.getDefaultFunction().apply(args);
   }
-
   /** The base function name. */
   public String getFunctionName() {
     return "nullOverload";
@@ -57,17 +54,17 @@ public class CelResolvedNullOverload extends CelResolvedOverload {
     return false;
   }
 
-  public boolean isNullable() {
-    return true;
+  public NullabilityProperties getNullabilityProperties() {
+    return nullabilityProperties;
   }
 
   /** The function definition. */
   public CelFunctionOverload getDefinition() {
-    return OPTIMIZED_FUNCTION_OVERLOAD;
+    return optimizedFunctionOverload;
   }
 
   OptimizedFunctionOverload getOptimizedDefinition() {
-    return OPTIMIZED_FUNCTION_OVERLOAD;
+    return optimizedFunctionOverload;
   }
 
   public Object invoke(Object[] args) throws CelEvaluationException {
@@ -82,8 +79,8 @@ public class CelResolvedNullOverload extends CelResolvedOverload {
     return CelFunctionOverload.NULL_VALUE;
   }
 
-  public static CelResolvedNullOverload of(List<Class<?>> parameterTypes) {
-    return new CelResolvedNullOverload(ImmutableList.copyOf(parameterTypes));
+  public static CelResolvedNullOverload of(List<Class<?>> parameterTypes, NullabilityProperties nullabilityProperties) {
+    return new CelResolvedNullOverload(ImmutableList.copyOf(parameterTypes), nullabilityProperties);
   }
 
 }

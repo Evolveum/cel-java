@@ -109,6 +109,10 @@ public final class DescriptorMessageProvider implements RuntimeTypeProvider {
       message = optionalMessage.get();
     }
 
+    if (celOptions.enableEasyNull() && message instanceof dev.cel.common.values.NullValue) {
+      return dev.cel.common.values.NullValue.NULL_VALUE;
+    }
+
     if (message instanceof Map) {
       Map<?, ?> map = (Map<?, ?>) message;
       if (map.containsKey(fieldName)) {
@@ -118,6 +122,8 @@ public final class DescriptorMessageProvider implements RuntimeTypeProvider {
 
       if (isOptionalMessage) {
         return Optional.empty();
+      } else if (celOptions.enableEasyNull()) {
+        return dev.cel.common.values.NullValue.NULL_VALUE;
       } else {
         throw CelAttributeNotFoundException.forMissingMapKey(fieldName);
       }

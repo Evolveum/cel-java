@@ -51,12 +51,19 @@ public interface CelFunctionBinding {
 
   boolean isStrict();
 
-  boolean isNullable();
+  NullabilityProperties getNullabilityProperties();
 
   /** Create a unary function binding from the {@code overloadId}, {@code arg}, and {@code impl}. */
   @SuppressWarnings("unchecked") // Safe from CelFunctionOverload.canHandle check before invocation
   static <T> CelFunctionBinding from(
-      String overloadId, Class<T> arg, CelFunctionOverload.Unary<T> impl) {
+          String overloadId, Class<T> arg, CelFunctionOverload.Unary<T> impl) {
+      return from(overloadId, arg, impl, determineNullability(ImmutableList.of(arg)));
+  }
+
+  /** Create a unary function binding from the {@code overloadId}, {@code arg}, and {@code impl}. */
+  @SuppressWarnings("unchecked") // Safe from CelFunctionOverload.canHandle check before invocation
+  static <T> CelFunctionBinding from(
+      String overloadId, Class<T> arg, CelFunctionOverload.Unary<T> impl, NullabilityProperties nullabilityProperties) {
     return from(
         overloadId,
         ImmutableList.of(arg),
@@ -70,16 +77,26 @@ public interface CelFunctionBinding {
           public Object apply(Object arg1) throws CelEvaluationException {
             return impl.apply((T) arg1);
           }
-        });
+        },
+        nullabilityProperties);
   }
 
-  /**
-   * Create a binary function binding from the {@code overloadId}, {@code arg1}, {@code arg2}, and
-   * {@code impl}.
-   */
+    /**
+     * Create a binary function binding from the {@code overloadId}, {@code arg1}, {@code arg2}, and
+     * {@code impl}.
+     */
+    @SuppressWarnings("unchecked") // Safe from CelFunctionOverload.canHandle check before invocation
+    static <T1, T2> CelFunctionBinding from(
+            String overloadId, Class<T1> arg1, Class<T2> arg2, CelFunctionOverload.Binary<T1, T2> impl) {
+        return from(overloadId, arg1, arg2, impl, determineNullability(ImmutableList.of(arg1, arg2)));
+    }
+
   @SuppressWarnings("unchecked") // Safe from CelFunctionOverload.canHandle check before invocation
   static <T1, T2> CelFunctionBinding from(
-      String overloadId, Class<T1> arg1, Class<T2> arg2, CelFunctionOverload.Binary<T1, T2> impl) {
+      String overloadId,
+      Class<T1> arg1, Class<T2> arg2,
+      CelFunctionOverload.Binary<T1, T2> impl,
+      NullabilityProperties nullabilityProperties) {
     return from(
         overloadId,
         ImmutableList.of(arg1, arg2),
@@ -93,25 +110,40 @@ public interface CelFunctionBinding {
           public Object apply(Object arg1, Object arg2) throws CelEvaluationException {
             return impl.apply((T1) arg1, (T2) arg2);
           }
-        });
+        },
+        nullabilityProperties);
   }
 
   /** Create a function binding from the {@code overloadId}, {@code argTypes}, and {@code impl}. */
   static CelFunctionBinding from(
       String overloadId, Iterable<Class<?>> argTypes, CelFunctionOverload impl) {
-    return new FunctionBindingImpl(
-        overloadId, ImmutableList.copyOf(argTypes), impl, /* isStrict= */ true, determineNullability(argTypes));
+    return from(overloadId, argTypes, impl, determineNullability(argTypes));
   }
 
-  // TODO: find better place? + consider CelOptions
-  static boolean determineNullability(Iterable<Class<?>> argTypes) {
+  static CelFunctionBinding from(
+      String overloadId, Iterable<Class<?>> argTypes,
+      CelFunctionOverload impl,
+      NullabilityProperties nullabilityProperties) {
+    return new FunctionBindingImpl(
+        overloadId, ImmutableList.copyOf(argTypes), impl, /* isStrict= */ true, nullabilityProperties);
+  }
+
+    // TODO: find better place? + consider CelOptions
+  static NullabilityProperties determineNullability(Iterable<Class<?>> argTypes) {
       for( Class<?> argType : argTypes) {
           // If overload declaration is using primitive type then it cannot accept null
           if (argType.isPrimitive()) {
-              return false;
+              return NullabilityProperties.NOT_NULLABLE;
           }
       }
-      return true;
+      return NullabilityProperties.NULLABLE_NULL;
+  }
+
+  static NullabilityProperties mergeNullabilityProperties(Collection<NullabilityProperties> nullabilityProperties) {
+      if (nullabilityProperties.stream().distinct().count() > 1) {
+          throw new IllegalArgumentException("Cannot merge nullability properties");
+      }
+      return nullabilityProperties.iterator().next();
   }
 
 
