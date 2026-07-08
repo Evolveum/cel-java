@@ -504,7 +504,23 @@ final class DefaultInterpreter implements Interpreter {
       CelResolvedOverload overload =
           findOverloadOrThrow(frame, expr, callExpr.function(), overloadIds, argArray);
       try {
-        Object dispatchResult = overload.getDefinition().apply(argArray);
+        Object dispatchResult;
+        if (celOptions.enableEasyNull()) {
+          Object[] nullableArgArray = Arrays.stream(argArray).map(
+                  arg -> arg instanceof dev.cel.common.values.NullValue ? null : arg
+          ).toArray();
+          if (argArray.length > 0 && nullableArgArray[0] == null
+                && overload.getNullabilityProperties() != null && overload.getNullabilityProperties().getDefaultFunction() != null) {
+            dispatchResult = overload.getNullabilityProperties().getDefaultFunction().apply(nullableArgArray);
+          } else {
+            dispatchResult = overload.getDefinition().apply(nullableArgArray);
+          }
+          if (dispatchResult == null) {
+            dispatchResult = dev.cel.common.values.NullValue.NULL_VALUE;
+          }
+        } else {
+          dispatchResult = overload.getDefinition().apply(argArray);
+        }
         // CustomFunctions themselves can return a CelUnknownSet directly.
         dispatchResult = InterpreterUtil.maybeAdaptToAccumulatedUnknowns(dispatchResult);
         if (celOptions.unwrapWellKnownTypesOnFunctionDispatch()) {

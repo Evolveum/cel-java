@@ -136,7 +136,7 @@ public interface CelFunctionBinding {
               return NullabilityProperties.NOT_NULLABLE;
           }
       }
-      return NullabilityProperties.NULLABLE_NULL;
+      return NullabilityProperties.NULLABLE;
   }
 
   static NullabilityProperties mergeNullabilityProperties(Collection<NullabilityProperties> nullabilityProperties) {

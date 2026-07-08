@@ -14,6 +14,7 @@
 
 package dev.cel.runtime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.Immutable;
 import dev.cel.common.values.NullValue;
 
@@ -24,8 +25,13 @@ import java.util.Objects;
 public class NullabilityProperties {
 
     public static final NullabilityProperties NOT_NULLABLE = new NullabilityProperties(false, null);
+    public static final NullabilityProperties NULLABLE = new NullabilityProperties(true, null);
     public static final NullabilityProperties NULLABLE_NULL = new NullabilityProperties(true, args -> NullValue.NULL_VALUE);
     public static final NullabilityProperties NULLABLE_FALSE = new NullabilityProperties(true, args -> false);
+    public static final NullabilityProperties NULLABLE_TRUE = new NullabilityProperties(true, args -> true);
+    public static final NullabilityProperties NULLABLE_ZERO = new NullabilityProperties(true, args -> 0);
+    public static final NullabilityProperties NULLABLE_NEGATIVE_ONE = new NullabilityProperties(true, args -> -1);
+    public static final NullabilityProperties NULLABLE_EMPTY_LIST = new NullabilityProperties(true, args -> ImmutableList.of());
 
     private final boolean isNullable;
     private final CelFunctionOverload defaultFunction;
