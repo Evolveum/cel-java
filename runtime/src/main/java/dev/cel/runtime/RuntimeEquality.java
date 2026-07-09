@@ -280,4 +280,8 @@ public class RuntimeEquality {
     this.runtimeHelpers = runtimeHelpers;
     this.celOptions = celOptions;
   }
+
+  protected RuntimeEquality(CelOptions celOptions) {
+    this(RuntimeHelpers.create(), celOptions);
+  }
 }

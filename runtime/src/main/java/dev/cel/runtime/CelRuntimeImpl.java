@@ -95,6 +95,9 @@ public abstract class CelRuntimeImpl implements CelRuntime {
   @AutoValue.CopyAnnotations
   abstract @Nullable ExtensionRegistry extensionRegistry();
 
+  @AutoValue.CopyAnnotations
+  abstract @Nullable RuntimeEquality runtimeEquality();
+
   @Override
   public Program createProgram(CelAbstractSyntaxTree ast) throws CelEvaluationException {
     return toRuntimeProgram(planner().plan(ast));
@@ -272,6 +275,9 @@ public abstract class CelRuntimeImpl implements CelRuntime {
     public abstract Builder setExtensionRegistry(ExtensionRegistry extensionRegistry);
 
     @Override
+    public abstract Builder setRuntimeEquality(RuntimeEquality runtimeEquality);
+
+    @Override
     public abstract Builder setTypeProvider(CelTypeProvider celTypeProvider);
 
     @Override
@@ -291,6 +297,8 @@ public abstract class CelRuntimeImpl implements CelRuntime {
     abstract CelStandardFunctions standardFunctions();
 
     abstract ExtensionRegistry extensionRegistry();
+
+    abstract RuntimeEquality runtimeEquality();
 
     abstract ImmutableMap<String, CelFunctionBinding> functionBindings();
 
@@ -489,7 +497,14 @@ public abstract class CelRuntimeImpl implements CelRuntime {
       DynamicProto dynamicProto = DynamicProto.create(defaultMessageFactory);
       CelValueProvider protoMessageValueProvider =
           ProtoMessageValueProvider.newInstance(options(), dynamicProto);
-      RuntimeEquality runtimeEquality = ProtoMessageRuntimeEquality.create(dynamicProto, options());
+
+      RuntimeEquality runtimeEquality;
+      if (runtimeEquality() == null) {
+        runtimeEquality = ProtoMessageRuntimeEquality.create(dynamicProto, options());
+      } else {
+        runtimeEquality = runtimeEquality();
+      }
+
       ImmutableSet<CelRuntimeLibrary> runtimeLibraries = runtimeLibrariesBuilder().build();
       // Add libraries, such as extensions
       for (CelRuntimeLibrary celLibrary : runtimeLibraries) {

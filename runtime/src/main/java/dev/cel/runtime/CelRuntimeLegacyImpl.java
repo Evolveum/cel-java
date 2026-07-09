@@ -72,6 +72,8 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
   // CEL-Internal-4
   private final ExtensionRegistry extensionRegistry;
 
+  private final RuntimeEquality runtimeEquality;
+
   // A user-provided custom type factory should presumably be thread-safe. This is documented, but
   // not enforced.
   // CEL-Internal-4
@@ -101,6 +103,7 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
             // CEL-Internal-2
             .setStandardEnvironmentEnabled(standardEnvironmentEnabled)
             .setExtensionRegistry(extensionRegistry)
+            .setRuntimeEquality(runtimeEquality)
             .addFileTypes(fileDescriptors)
             .addLibraries(celRuntimeLibraries)
             .addFunctionBindings(celFunctionBindings);
@@ -142,6 +145,8 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
     private CelOptions options;
 
     private ExtensionRegistry extensionRegistry;
+
+    private RuntimeEquality runtimeEquality;
 
     private boolean standardEnvironmentEnabled;
 
@@ -252,6 +257,13 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
     }
 
     @Override
+    public CelRuntimeBuilder setRuntimeEquality(RuntimeEquality runtimeEquality) {
+      checkNotNull(runtimeEquality);
+      this.runtimeEquality = runtimeEquality;
+      return this;
+    }
+
+    @Override
     public CelRuntimeBuilder setContainer(CelContainer container) {
       throw new UnsupportedOperationException(
           "This method is not supported for the legacy runtime");
@@ -290,7 +302,13 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
               runtimeTypeFactory, DefaultMessageFactory.create(celDescriptorPool));
 
       DynamicProto dynamicProto = DynamicProto.create(runtimeTypeFactory);
-      RuntimeEquality runtimeEquality = ProtoMessageRuntimeEquality.create(dynamicProto, options);
+      RuntimeEquality runtimeEquality;
+      if (this.runtimeEquality == null) {
+        runtimeEquality = ProtoMessageRuntimeEquality.create(dynamicProto, options);
+      } else {
+        runtimeEquality = this.runtimeEquality;
+      }
+//      RuntimeEquality runtimeEquality = ProtoMessageRuntimeEquality.create(dynamicProto, options);
 
       ImmutableSet<CelRuntimeLibrary> runtimeLibraries = celRuntimeLibraries.build();
       // Add libraries, such as extensions
@@ -364,6 +382,7 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
           options,
           standardEnvironmentEnabled,
           extensionRegistry,
+          runtimeEquality,
           customTypeFactory,
           overriddenStandardFunctions,
           celValueProvider,
@@ -452,6 +471,7 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
       CelOptions options,
       boolean standardEnvironmentEnabled,
       ExtensionRegistry extensionRegistry,
+      RuntimeEquality runtimeEquality,
       @Nullable Function<String, Message.Builder> customTypeFactory,
       @Nullable CelStandardFunctions overriddenStandardFunctions,
       @Nullable CelValueProvider celValueProvider,
@@ -462,6 +482,7 @@ public final class CelRuntimeLegacyImpl implements CelRuntime {
     this.options = options;
     this.standardEnvironmentEnabled = standardEnvironmentEnabled;
     this.extensionRegistry = extensionRegistry;
+    this.runtimeEquality = runtimeEquality;
     this.customTypeFactory = customTypeFactory;
     this.overriddenStandardFunctions = overriddenStandardFunctions;
     this.celValueProvider = celValueProvider;

@@ -381,10 +381,10 @@ public final class CelStandardDeclarations {
       public enum Relation implements StandardOverload {
         EQUALS(
             CelOverloadDecl.newGlobalOverload(
-                "equals", "equality", SimpleType.BOOL, TYPE_PARAM_A, TYPE_PARAM_A)),
+                "equals", "equality", SimpleType.BOOL, SimpleType.ANY, SimpleType.ANY)),
         NOT_EQUALS(
             CelOverloadDecl.newGlobalOverload(
-                "not_equals", "inequality", SimpleType.BOOL, TYPE_PARAM_A, TYPE_PARAM_A)),
+                "not_equals", "inequality", SimpleType.BOOL, SimpleType.ANY, SimpleType.ANY)),
         ;
         private final CelOverloadDecl celOverloadDecl;
 

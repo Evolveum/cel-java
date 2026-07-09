@@ -196,6 +196,8 @@ public interface CelRuntimeBuilder {
   @CanIgnoreReturnValue
   CelRuntimeBuilder setExtensionRegistry(ExtensionRegistry extensionRegistry);
 
+  @CanIgnoreReturnValue
+  CelRuntimeBuilder setRuntimeEquality(RuntimeEquality runtimeEquality);
 
   /**
    * Set the {@link CelContainer} to use as the namespace for resolving CEL expression variables and
