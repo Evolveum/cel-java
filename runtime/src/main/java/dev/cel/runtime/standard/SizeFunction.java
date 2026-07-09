@@ -19,6 +19,7 @@ import com.google.protobuf.ByteString;
 import dev.cel.common.CelOptions;
 import dev.cel.common.values.CelByteString;
 import dev.cel.runtime.CelFunctionBinding;
+import dev.cel.runtime.NullabilityProperties;
 import dev.cel.runtime.RuntimeEquality;
 import java.util.Arrays;
 import java.util.List;
@@ -47,42 +48,52 @@ public final class SizeFunction extends CelStandardFunction {
         (celOptions, runtimeEquality) -> {
           if (celOptions.evaluateCanonicalTypesToNativeValues()) {
             return CelFunctionBinding.from(
-                "size_bytes", CelByteString.class, (CelByteString bytes) -> (long) bytes.size());
+                "size_bytes", CelByteString.class, (CelByteString bytes) -> (long) bytes.size(),
+                    NullabilityProperties.NULLABLE_ZERO);
           } else {
             return CelFunctionBinding.from(
-                "size_bytes", ByteString.class, (ByteString bytes) -> (long) bytes.size());
+                "size_bytes", ByteString.class, (ByteString bytes) -> (long) bytes.size(),
+                    NullabilityProperties.NULLABLE_ZERO);
           }
         }),
     BYTES_SIZE(
         (celOptions, runtimeEquality) -> {
           if (celOptions.evaluateCanonicalTypesToNativeValues()) {
             return CelFunctionBinding.from(
-                "bytes_size", CelByteString.class, (CelByteString bytes) -> (long) bytes.size());
+                "bytes_size", CelByteString.class, (CelByteString bytes) -> (long) bytes.size(),
+                    NullabilityProperties.NULLABLE_ZERO);
           } else {
             return CelFunctionBinding.from(
-                "bytes_size", ByteString.class, (ByteString bytes) -> (long) bytes.size());
+                "bytes_size", ByteString.class, (ByteString bytes) -> (long) bytes.size(),
+                    NullabilityProperties.NULLABLE_ZERO);
           }
         }),
     SIZE_LIST(
         (celOptions, runtimeEquality) ->
-            CelFunctionBinding.from("size_list", List.class, (List list1) -> (long) list1.size())),
+            CelFunctionBinding.from("size_list", List.class, (List list1) -> (long) list1.size(),
+                    NullabilityProperties.NULLABLE_ZERO)),
     LIST_SIZE(
         (celOptions, runtimeEquality) ->
-            CelFunctionBinding.from("list_size", List.class, (List list1) -> (long) list1.size())),
+            CelFunctionBinding.from("list_size", List.class, (List list1) -> (long) list1.size(),
+            NullabilityProperties.NULLABLE_ZERO)),
     SIZE_STRING(
         (celOptions, runtimeEquality) ->
             CelFunctionBinding.from(
-                "size_string", String.class, (String s) -> (long) s.codePointCount(0, s.length()))),
+                "size_string", String.class, (String s) -> (long) s.codePointCount(0, s.length()),
+                    NullabilityProperties.NULLABLE_ZERO)),
     STRING_SIZE(
         (celOptions, runtimeEquality) ->
             CelFunctionBinding.from(
-                "string_size", String.class, (String s) -> (long) s.codePointCount(0, s.length()))),
+                "string_size", String.class, (String s) -> (long) s.codePointCount(0, s.length()),
+                    NullabilityProperties.NULLABLE_ZERO)),
     SIZE_MAP(
         (celOptions, runtimeEquality) ->
-            CelFunctionBinding.from("size_map", Map.class, (Map map1) -> (long) map1.size())),
+            CelFunctionBinding.from("size_map", Map.class, (Map map1) -> (long) map1.size(),
+                    NullabilityProperties.NULLABLE_ZERO)),
     MAP_SIZE(
         (celOptions, runtimeEquality) ->
-            CelFunctionBinding.from("map_size", Map.class, (Map map1) -> (long) map1.size()));
+            CelFunctionBinding.from("map_size", Map.class, (Map map1) -> (long) map1.size(),
+                    NullabilityProperties.NULLABLE_ZERO));
 
     private final CelStandardOverload standardOverload;
 
