@@ -165,6 +165,10 @@ public final class DescriptorMessageProvider implements RuntimeTypeProvider {
       message = optionalMessage.get();
     }
 
+    if (celOptions.enableEasyNull() && message instanceof dev.cel.common.values.NullValue) {
+      return false;
+    }
+
     if (message instanceof Map) {
       Map<?, ?> map = (Map<?, ?>) message;
       return map.containsKey(fieldName);
