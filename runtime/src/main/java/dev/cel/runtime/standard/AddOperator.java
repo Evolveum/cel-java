@@ -134,7 +134,7 @@ public final class AddOperator extends CelStandardFunction {
     ADD_STRING(
         (celOptions, runtimeEquality) ->
             CelFunctionBinding.from(
-                "add_string", String.class, String.class, (String x, String y) -> x + y)),
+                "add_string", String.class, String.class, AddOperator::addString)),
     ADD_DURATION_TIMESTAMP(
         (celOptions, runtimeEquality) -> {
           if (celOptions.evaluateCanonicalTypesToNativeValues()) {
@@ -169,7 +169,20 @@ public final class AddOperator extends CelStandardFunction {
     }
   }
 
-  private AddOperator(ImmutableSet<CelStandardOverload> overloads) {
+    private AddOperator(ImmutableSet<CelStandardOverload> overloads) {
     super(ADD.getFunction(), overloads);
   }
+
+    private static Object addString(String x, String y) {
+        if (x == null && y == null) {
+            return null;
+        }
+        if (x == null) {
+            return y;
+        }
+        if (y == null) {
+            return x;
+        }
+        return x + y;
+    }
 }
