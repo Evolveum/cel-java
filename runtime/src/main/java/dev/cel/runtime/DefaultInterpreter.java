@@ -1019,6 +1019,8 @@ final class DefaultInterpreter implements Interpreter {
         iterRange = (List<Object>) iterRangeRaw.value();
       } else if (iterRangeRaw.value() instanceof Map) {
         iterRange = ((Map<Object, Object>) iterRangeRaw.value()).keySet();
+      } else if (iterRangeRaw.value() instanceof dev.cel.common.values.NullValue) {
+        iterRange = ImmutableList.of();
       } else {
         throw CelEvaluationExceptionBuilder.newBuilder(
                 "expected a list or a map for iteration range but got '%s'",
