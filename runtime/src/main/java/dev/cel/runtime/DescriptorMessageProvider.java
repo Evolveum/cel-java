@@ -29,6 +29,8 @@ import dev.cel.common.internal.ProtoAdapter;
 import dev.cel.common.internal.ProtoMessageFactory;
 import dev.cel.common.types.CelTypes;
 import dev.cel.common.values.CelByteString;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
@@ -209,6 +211,9 @@ public final class DescriptorMessageProvider implements RuntimeTypeProvider {
 
   private static MessageOrBuilder assertFullProtoMessage(Object candidate, String fieldName) {
     if (!(candidate instanceof MessageOrBuilder)) {
+      if (candidate instanceof List) {
+        throw CelAttributeNotFoundException.forFieldResolutionList(fieldName);
+      }
       // This can happen when the field selection is done on dyn, and it is not a message.
       throw CelAttributeNotFoundException.forFieldResolution(fieldName);
     }

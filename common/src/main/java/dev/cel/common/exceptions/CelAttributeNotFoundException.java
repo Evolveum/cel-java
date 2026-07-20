@@ -36,7 +36,17 @@ public final class CelAttributeNotFoundException extends CelRuntimeException {
   }
 
   public static CelAttributeNotFoundException forFieldResolution(Collection<String> fields) {
-    return new CelAttributeNotFoundException(formatErrorMessage(fields));
+    return new CelAttributeNotFoundException(formatErrorMessage(fields,
+            "Error resolving field%s '%s'. Field selections must be performed on messages or maps."));
+  }
+
+  public static CelAttributeNotFoundException forFieldResolutionList(String... fields) {
+    return forFieldResolutionList(Arrays.asList(fields));
+  }
+
+  public static CelAttributeNotFoundException forFieldResolutionList(Collection<String> fields) {
+    return new CelAttributeNotFoundException(formatErrorMessage(fields,
+            "Error resolving field%s '%s'. Attempted field selections on multi-valued item."));
   }
 
   public static CelAttributeNotFoundException forMissingAttributes(Collection<String> attributes) {
@@ -44,15 +54,14 @@ public final class CelAttributeNotFoundException extends CelRuntimeException {
         "No such attribute(s): " + String.join(", ", attributes));
   }
 
-  private static String formatErrorMessage(Collection<String> fields) {
+  private static String formatErrorMessage(Collection<String> fields, String format) {
     String maybePlural = "";
     if (fields.size() > 1) {
       maybePlural = "s";
     }
 
     return String.format(
-        "Error resolving field%s '%s'. Field selections must be performed on messages or maps.",
-        maybePlural, String.join(", ", fields));
+            format, maybePlural, String.join(", ", fields));
   }
 
   private CelAttributeNotFoundException(String message) {
